@@ -62,14 +62,14 @@ public class ES2ESScrollTimestampDemo {
 		 */
 		importBuilder.setIndex("es2esdemo") //设置要目标elasticsearch索引名称
 					 .setIndexType("es2esdemo"); //设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
-		importBuilder.setTargetElasticsearch("targetElasticsearch")
+		importBuilder.setTargetElasticsearch("targetElasticsearch")//设置目标Elasticsearch集群数据源名称，和源elasticsearch集群一样都在application.properties文件中配置
 
-				.setDsl2ndSqlFile("dsl2ndSqlFile.xml")
-				.setDslName("scrollQuery")
-				.setScrollLiveTime("10m")
-//				.setSliceQuery(true)
-//				.setSliceSize(5)
-				.setQueryUrl("dbdemo/_search")
+				.setDsl2ndSqlFile("dsl.xml") //指定从源dbdemo表检索数据的dsl语句配置文件名称，可以通过addParam方法传递dsl中的变量参数值
+				.setDslName("scrollQuery") //指定从源dbdemo表检索数据的dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
+				.setScrollLiveTime("10m") // 指定scroll查询context有效期，这里是10分钟
+//				.setSliceQuery(true) // 指定scroll查询为slice查询
+//				.setSliceSize(5) // 指定slice数量，与索引debdemo的shard数量一致即可
+				.setQueryUrl("dbdemo/_search") // 指定从dbdemo索引表检索数据
 
 //				//添加dsl中需要用到的参数及参数值
 				.addParam("var1","v1")
@@ -122,6 +122,7 @@ public class ES2ESScrollTimestampDemo {
 		importBuilder.setFromFirst(true);//任务重启时，重新开始采集数据，true 重新开始，false不重新开始，适合于每次全量导入数据的情况，如果是全量导入，可以先删除原来的索引数据
 		importBuilder.setLastValueStorePath("es2esdemo_import");//记录上次采集的增量字段值的文件路径，作为下次增量（或者重启后）采集数据的起点，不同的任务这个路径要不一样
 		/**
+		 * 如果指定索引文档元数据字段为为文档_id,那么需要指定前缀meta:，如果是其他数据字段就不需要
 		 * **文档_id*
 		 *private String id;
 		 *    **文档对应索引类型信息*

@@ -1,6 +1,6 @@
 
 Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch in a way similar to mybatis.
-
+#
 # BBoss Environmental requirements
 
 JDK requirement: JDK 1.7+
@@ -10,15 +10,20 @@ Elasticsearch version requirements: 1.x,2.X,5.X,6.X,7.x,+
 Spring booter 1.x,2.x,+
 # Elasticsearch-Elasticsearch 数据同步工具demo
 使用本demo所带的应用程序运行容器环境，可以快速编写，打包发布可运行的数据导入工具
+包含两个现成的示例：
+## 带条件的增量同步
+org.frameworkset.elasticsearch.imp.ES2ESScrollTimestampDemo
+## 不带条件的一次性全量同步
+org.frameworkset.elasticsearch.imp.ES2ESScrollAllTimestampDemo
 
-支持的数据库：
+## 支持的数据库：
 Elasticsearch 到elasticsearch数据同步
 Elasticsearch 到数据库数据同步
 
-支持的Elasticsearch版本：
+## 支持的Elasticsearch版本：
 1.x,2.x,5.x,6.x,7.x,+
 
-支持海量PB级数据同步导入功能
+## 支持海量PB级数据同步导入功能
 
 [使用参考文档](https://esdoc.bbossgroups.com/#/db-es-tool)
 

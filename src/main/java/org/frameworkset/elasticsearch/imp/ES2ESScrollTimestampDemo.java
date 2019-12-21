@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * <p>Description: 从es中查询数据导入es案例,基于时间戳增量同步，采用slicescroll检索</p>
+ * <p>Description: 从es中查询数据导入es案例,基于时间戳增量同步，，可以采用slicescroll和scroll两种方式从源Elasticsearch拉取数据</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/1/11 14:39
@@ -49,7 +49,8 @@ public class ES2ESScrollTimestampDemo {
 
 	public void scheduleScrollRefactorImportData(){
 		ES2ESExportBuilder importBuilder = new ES2ESExportBuilder();
-		importBuilder.setBatchSize(2).setFetchSize(10);
+		importBuilder.setBatchSize(1000) //设置批量从源Elasticsearch中拉取的记录数
+				.setFetchSize(5000); //设置批量写入目标Elasticsearch记录数
 
 
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑，
@@ -60,14 +61,15 @@ public class ES2ESScrollTimestampDemo {
 		/**
 		 * es相关配置
 		 */
-		importBuilder.setIndex("es2esdemo") //设置要目标elasticsearch索引名称
-					 .setIndexType("es2esdemo"); //设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
+		importBuilder.setIndex("es2esdemo") //全局设置要目标elasticsearch索引名称
+					 .setIndexType("es2esdemo"); //全局设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
 		importBuilder.setTargetElasticsearch("targetElasticsearch")//设置目标Elasticsearch集群数据源名称，和源elasticsearch集群一样都在application.properties文件中配置
 
 				.setDsl2ndSqlFile("dsl.xml") //指定从源dbdemo表检索数据的dsl语句配置文件名称，可以通过addParam方法传递dsl中的变量参数值
 				.setDslName("scrollQuery") //指定从源dbdemo表检索数据的dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
 				.setScrollLiveTime("10m") // 指定scroll查询context有效期，这里是10分钟
 //				.setSliceQuery(true) // 指定scroll查询为slice查询
+//				.setDslName("scrollSliceQuery") //指定从源dbdemo表检索数据的slice scroll dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
 //				.setSliceSize(5) // 指定slice数量，与索引debdemo的shard数量一致即可
 				.setQueryUrl("dbdemo/_search") // 指定从dbdemo索引表检索数据
 

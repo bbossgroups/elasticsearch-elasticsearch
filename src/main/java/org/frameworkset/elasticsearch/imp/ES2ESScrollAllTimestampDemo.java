@@ -16,6 +16,8 @@ package org.frameworkset.elasticsearch.imp;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.elasticsearch.ElasticSearchHelper;
+import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.tran.DataRefactor;
 import org.frameworkset.tran.DataStream;
@@ -29,7 +31,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * <p>Description: 从es中查询数据导入es案例,基于时间戳增量同步，采用slicescroll检索</p>
+ * <p>Description: 从es中查询数据导入es案例,全量同步，可以采用slicescroll和scroll两种方式从源Elasticsearch拉取数据</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/1/11 14:39
@@ -47,7 +49,8 @@ public class ES2ESScrollAllTimestampDemo {
 
 	public void scheduleScrollRefactorImportData(){
 		ES2ESExportBuilder importBuilder = new ES2ESExportBuilder();
-		importBuilder.setBatchSize(2).setFetchSize(10);
+		importBuilder.setBatchSize(1000) //设置批量从源Elasticsearch中拉取的记录数
+						.setFetchSize(5000); //设置批量写入目标Elasticsearch记录数
 
 
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑，
@@ -237,21 +240,49 @@ public class ES2ESScrollAllTimestampDemo {
 				Date optime = context.getDateValue("logOpertime",dateFormat);
 				context.addFieldValue("logOpertime",optime);
 				context.addFieldValue("collecttime",new Date());
-
 				/**
-				 //关联查询数据,单值查询
-				 Map headdata = SQLExecutor.queryObjectWithDBName(Map.class,context.getEsjdbc().getDbConfig().getDbName(),
-				 "select * from head where billid = ? and othercondition= ?",
-				 context.getIntegerValue("billid"),"otherconditionvalue");//多个条件用逗号分隔追加
-				 //将headdata中的数据,调用addFieldValue方法将数据加入当前es文档，具体如何构建文档数据结构根据需求定
-				 context.addFieldValue("headdata",headdata);
-				 //关联查询数据,多值查询
-				 List<Map> facedatas = SQLExecutor.queryListWithDBName(Map.class,context.getEsjdbc().getDbConfig().getDbName(),
-				 "select * from facedata where billid = ?",
-				 context.getIntegerValue("billid"));
-				 //将facedatas中的数据,调用addFieldValue方法将数据加入当前es文档，具体如何构建文档数据结构根据需求定
-				 context.addFieldValue("facedatas",facedatas);
+				 * 如果指定索引文档元数据字段为为文档_id,那么需要指定前缀meta:，如果是其他数据字段就不需要
+				 * **文档_id*
+				 *private String id;
+				 *    **文档对应索引类型信息*
+				 *private String type;
+				 *    **文档对应索引字段信息*
+				 *private Map<String, List<Object>> fields;
+				 * **文档对应版本信息*
+				 *private long version;
+				 *  **文档对应的索引名称*
+				 *private String index;
+				 *  **文档对应的高亮检索信息*
+				 *private Map<String, List<Object>> highlight;
+				 *     **文档对应的排序信息*
+				 *private Object[] sort;
+				 *     **文档对应的评分信息*
+				 *private Double score;
+				 *     **文档对应的父id*
+				 *private Object parent;
+				 *     **文档对应的路由信息*
+				 *private String routing;
+				 *     **文档对应的是否命中信息*
+				 *private boolean found;
+				 *     **文档对应的nested检索信息*
+				 *private Map<String, Object> nested;
+				 *     **文档对应的innerhits信息*
+				 *private Map<String, Map<String, InnerSearchHits>> innerHits;
+				 *     **文档对应的索引分片号*
+				 *private String shard;
+				 *     **文档对应的elasticsearch集群节点名称*
+				 *private String node;
+				 *    **文档对应的打分规则信息*
+				 *private Explanation explanation;
+				 *
+				 *private long seqNo;//"_index": "trace-2017.09.01",
+				 *private long primaryTerm;//"_index": "trace-2017.09.01",
 				 */
+				//获取源记录对应的索引名称
+				String index = (String)context.getMetaValue("index");
+				//将源记录的索引名称设置为目标记录的索引名称
+				context.setIndex(index);
+
 			}
 		});
 		//映射和转换配置结束
@@ -275,5 +306,10 @@ public class ES2ESScrollAllTimestampDemo {
 		 */
 		DataStream dataStream = importBuilder.builder();
 		dataStream.execute();//执行导入操作
+	}
+
+	public void count(){
+		ClientInterface clientInterface = ElasticSearchHelper.getRestClientUtil("targetElasticsearch");
+		long totalSize = clientInterface.countAll("es2esdemo");
 	}
 }

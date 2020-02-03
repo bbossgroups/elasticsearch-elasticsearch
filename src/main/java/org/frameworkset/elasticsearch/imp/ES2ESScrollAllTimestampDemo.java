@@ -218,7 +218,7 @@ public class ES2ESScrollAllTimestampDemo {
 
 				context.addFieldValue("author","duoduo");
 				context.addFieldValue("title","解放");
-				context.addFieldValue("subtitle","中国人民解放了");
+				context.addFieldValue("subtitle","小康");
 
 //				context.addIgnoreFieldMapping("title");
 				//上述三个属性已经放置到docInfo中，如果无需再放置到索引文档中，可以忽略掉这些属性

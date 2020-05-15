@@ -33,7 +33,7 @@ Elasticsearch 到数据库数据同步
 <dependency>
   <groupId>com.bbossgroups.plugins</groupId>
   <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-  <version>6.1.1</version>
+  <version>6.1.2</version>
   <scope>compile</scope>
 </dependency>
 ```

@@ -8,6 +8,12 @@ JDK requirement: JDK 1.7+
 Elasticsearch version requirements: 1.x,2.X,5.X,6.X,7.x,+
 
 Spring booter 1.x,2.x,+
+
+Spring boot环境配置和maven坐标导入，可以参考文档：
+
+<https://esdoc.bbossgroups.com/#/usedatatran-in-spring-boot>
+
+
 # Elasticsearch-Elasticsearch 数据同步工具demo
 使用本demo所带的应用程序运行容器环境，可以快速编写，打包发布可运行的数据导入工具
 包含两个现成的示例：
@@ -33,7 +39,7 @@ Elasticsearch 到数据库数据同步
 <dependency>
   <groupId>com.bbossgroups.plugins</groupId>
   <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-  <version>6.1.5</version>
+  <version>6.1.6</version>
   <scope>compile</scope>
 </dependency>
 ```

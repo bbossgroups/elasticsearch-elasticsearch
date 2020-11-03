@@ -60,8 +60,8 @@ public class ES2ESScrollTimestampDemo {
 		/**
 		 * es相关配置
 		 */
-		importBuilder.setIndex("es2esdemo") //全局设置要目标elasticsearch索引名称
-					 .setIndexType("es2esdemo"); //全局设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
+		importBuilder.setIndex("es2esdemo"); //全局设置要目标elasticsearch索引名称
+					 //.setIndexType("es2esdemo"); //全局设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
 		importBuilder
 				.setTargetElasticsearch("targetElasticsearch")//设置目标Elasticsearch集群数据源名称，和源elasticsearch集群一样都在application.properties文件中配置
 				.setSourceElasticsearch("default");

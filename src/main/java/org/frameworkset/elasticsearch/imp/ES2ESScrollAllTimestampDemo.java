@@ -61,8 +61,8 @@ public class ES2ESScrollAllTimestampDemo {
 		/**
 		 * es相关配置
 		 */
-		importBuilder.setIndex("es2esdemo") //设置要目标elasticsearch索引名称
-					 .setIndexType("es2esdemo"); //设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
+		importBuilder.setIndex("es2esdemo"); //设置要目标elasticsearch索引名称
+					// .setIndexType("es2esdemo"); //设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
 		importBuilder.setTargetElasticsearch("targetElasticsearch")//设置目标Elasticsearch集群数据源名称，和源elasticsearch集群一样都在application.properties文件中配置
 
 				.setDsl2ndSqlFile("dsl.xml") //指定从源dbdemo表检索数据的dsl语句配置文件名称，可以通过addParam方法传递dsl中的变量参数值

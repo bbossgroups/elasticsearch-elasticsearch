@@ -16,6 +16,7 @@ package org.frameworkset.elasticsearch.imp;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.tran.DataRefactor;
 import org.frameworkset.tran.DataStream;
@@ -41,17 +42,25 @@ import java.util.Map;
 public class ES2ESScrollTimestampDemo {
 	public static void main(String[] args){
 		ES2ESScrollTimestampDemo esDemo = new ES2ESScrollTimestampDemo();
-		esDemo.scheduleScrollRefactorImportData();
+		esDemo.scheduleScrollRefactorImportData(true);
 		System.out.println("complete.");
 	}
 
 
 
-	public void scheduleScrollRefactorImportData(){
+	public void scheduleScrollRefactorImportData(boolean dropIndice){
 		ES2ESExportBuilder importBuilder = new ES2ESExportBuilder();
 		importBuilder.setBatchSize(1000) //设置批量从源Elasticsearch中拉取的记录数
 				.setFetchSize(5000); //设置批量写入目标Elasticsearch记录数
-
+//增量定时任务不要删表，但是可以通过删表来做初始化操作
+		if(dropIndice) {
+			try {
+				//清除测试表,导入的时候回重建表，测试的时候加上为了看测试效果，实际线上环境不要删表
+				String repsonse = ElasticSearchHelper.getRestClientUtil().dropIndice("es2esdemo");
+				System.out.println(repsonse);
+			} catch (Exception e) {
+			}
+		}
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑，
 		// 设置增量变量log_id，增量变量名称#[log_id]可以多次出现在sql语句的不同位置中，例如：
 		// select * from td_sm_log where log_id > #[log_id] and parent_id = #[log_id]

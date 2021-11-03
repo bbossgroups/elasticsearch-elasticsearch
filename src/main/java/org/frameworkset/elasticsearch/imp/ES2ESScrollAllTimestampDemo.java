@@ -52,7 +52,7 @@ public class ES2ESScrollAllTimestampDemo {
 		importBuilder.setBatchSize(1000) //设置批量从源Elasticsearch中拉取的记录数
 						.setFetchSize(5000); //设置批量写入目标Elasticsearch记录数
 
-
+		importBuilder.setSourceElasticsearch("default");
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑，
 		// 设置增量变量log_id，增量变量名称#[log_id]可以多次出现在sql语句的不同位置中，例如：
 		// select * from td_sm_log where log_id > #[log_id] and parent_id = #[log_id]

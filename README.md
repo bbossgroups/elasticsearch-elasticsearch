@@ -5,7 +5,7 @@ Bboss is a good elasticsearch Java rest client. It operates and accesses elastic
 
 JDK requirement: JDK 1.7+
 
-Elasticsearch version requirements: 1.x,2.X,5.X,6.X,7.x,+
+Elasticsearch version requirements: 1.x,2.X,5.X,6.X,7.x,8.x,+
 
 Spring booter 1.x,2.x,+
 
@@ -27,7 +27,7 @@ Elasticsearch 到elasticsearch数据同步
 Elasticsearch 到数据库数据同步
 
 ## 支持的Elasticsearch版本：
-1.x,2.x,5.x,6.x,7.x,+
+1.x,2.x,5.x,6.x,7.x,8.x,+
 
 ## 支持海量PB级数据同步导入功能
 
@@ -39,7 +39,7 @@ Elasticsearch 到数据库数据同步
 <dependency>
   <groupId>com.bbossgroups.plugins</groupId>
   <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-  <version>6.5.0</version>
+  <version>6.5.1</version>
   <scope>compile</scope>
 </dependency>
 ```

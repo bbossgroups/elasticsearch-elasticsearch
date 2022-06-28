@@ -19,9 +19,10 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.tran.DataRefactor;
 import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.es.input.es.ES2ESExportBuilder;
-import org.frameworkset.tran.es.output.ESOutputConfig;
+import org.frameworkset.tran.plugin.es.input.ElasticsearchInputConfig;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -49,13 +50,17 @@ public class NewES2ESScrollTimestampDemo {
 
 
 	public void scheduleScrollRefactorImportData(){
-		ES2ESExportBuilder importBuilder = new ES2ESExportBuilder();
+		ImportBuilder importBuilder = new ImportBuilder();
 		importBuilder.setBatchSize(1000) //设置批量从源Elasticsearch中拉取的记录数
 				.setFetchSize(5000); //设置批量写入目标Elasticsearch记录数
-		ESOutputConfig esOutputConfig = new ESOutputConfig();
+		ElasticsearchOutputConfig esOutputConfig = new ElasticsearchOutputConfig();
 		esOutputConfig.setTargetElasticsearch("targetElasticsearch");
-		esOutputConfig.setTargetIndex("newes2esdemo");
-		importBuilder.setEsOutputConfig(esOutputConfig);
+		esOutputConfig.setIndex("newes2esdemo");
+		esOutputConfig.setEsIdField("meta:_id");
+		esOutputConfig.setDebugResponse(false);//设置是否将每次处理的reponse打印到日志文件中，默认false
+		esOutputConfig.setDiscardBulkResponse(true);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认false
+
+		importBuilder.setOutputConfig(esOutputConfig);
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑，
 		// 设置增量变量log_id，增量变量名称#[log_id]可以多次出现在sql语句的不同位置中，例如：
 		// select * from td_sm_log where log_id > #[log_id] and parent_id = #[log_id]
@@ -66,19 +71,20 @@ public class NewES2ESScrollTimestampDemo {
 		 */
 //		importBuilder.setIndex("es2esdemo"); //全局设置要目标elasticsearch索引名称
 					 //.setIndexType("es2esdemo"); //全局设值目标elasticsearch索引类型名称，如果是Elasticsearch 7以后的版本不需要配置
-		importBuilder
-//				.setTargetElasticsearch("targetElasticsearch")//设置目标Elasticsearch集群数据源名称，和源elasticsearch集群一样都在application.properties文件中配置
-				.setSourceElasticsearch("default");
-		importBuilder.setDsl2ndSqlFile("dsl.xml") //指定从源dbdemo表检索数据的dsl语句配置文件名称，可以通过addParam方法传递dsl中的变量参数值
+		ElasticsearchInputConfig elasticsearchInputConfig = new ElasticsearchInputConfig();
+		elasticsearchInputConfig.setSourceElasticsearch("default");
+		elasticsearchInputConfig.setDslFile("dsl.xml") //指定从源dbdemo表检索数据的dsl语句配置文件名称，可以通过addParam方法传递dsl中的变量参数值
 				.setDslName("scrollQuery") //指定从源dbdemo表检索数据的dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
 				.setScrollLiveTime("10m") // 指定scroll查询context有效期，这里是10分钟
 //				.setSliceQuery(true) // 指定scroll查询为slice查询
 //				.setDslName("scrollSliceQuery") //指定从源dbdemo表检索数据的slice scroll dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
 //				.setSliceSize(5) // 指定slice数量，与索引debdemo的shard数量一致即可
-				.setQueryUrl("dbdemo/_search") // 指定从dbdemo索引表检索数据
+				.setQueryUrl("dbdemo/_search") ;// 指定从dbdemo索引表检索数据
 
+		importBuilder.setInputConfig(elasticsearchInputConfig);
+		importBuilder.setIncreamentEndOffset(60);
 //				//添加dsl中需要用到的参数及参数值
-				.addParam("var1","v1")
+		importBuilder.addParam("var1","v1")
 				.addParam("var2","v2")
 				.addParam("var3","v3");
 
@@ -124,7 +130,7 @@ public class NewES2ESScrollTimestampDemo {
 //		//设置任务执行拦截器结束，可以添加多个
 		//增量配置开始
 //		importBuilder.setLastValueColumn("logId");//指定数字增量查询字段变量名称
-		importBuilder.setDateLastValueColumn("logOpertime");//手动指定日期增量查询字段变量名称
+		importBuilder.setLastValueColumn("logOpertime");//手动指定日期增量查询字段变量名称
 		//		指定日期增量字段日期格式，当增量字段为日期类型且日期格式不是默认的
 //		yyyy-MM-dd'T'HH:mm:ss.SSS'Z'时，需要设置字段相对应的日期格式，例如：yyyy-MM-dd HH:mm:ss
 //				,如果是默认utc格式，则不需要手动设置指定
@@ -169,7 +175,7 @@ public class NewES2ESScrollTimestampDemo {
 		 *private long seqNo;//"_index": "trace-2017.09.01",
 		 *private long primaryTerm;//"_index": "trace-2017.09.01",
 		 */
-		importBuilder.setEsIdField("meta:_id");
+
 //		importBuilder.setLastValueStoreTableName("logs");//记录上次采集的增量字段值的表，可以不指定，采用默认表名increament_tab
 		importBuilder.setLastValueType(ImportIncreamentConfig.TIMESTAMP_TYPE);//如果没有指定增量查询字段名称，则需要指定字段类型：ImportIncreamentConfig.NUMBER_TYPE 数字类型
 		// 或者ImportIncreamentConfig.TIMESTAMP_TYPE 日期类型
@@ -274,11 +280,7 @@ public class NewES2ESScrollTimestampDemo {
 		importBuilder.setThreadCount(50);//设置批量导入线程池工作线程数量
 		importBuilder.setContinueOnError(true);//任务出现异常，是否继续执行作业：true（默认值）继续执行 false 中断作业执行
 		importBuilder.setAsyn(false);//true 异步方式执行，不等待所有导入作业任务结束，方法快速返回；false（默认值） 同步方式执行，等待所有导入作业任务结束，所有作业结束后方法才返回
-//		importBuilder.setDebugResponse(false);//设置是否将每次处理的reponse打印到日志文件中，默认false，不打印响应报文将大大提升性能，只有在调试需要的时候才打开，log日志级别同时要设置为INFO
-//		importBuilder.setDiscardBulkResponse(true);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认true，如果不需要响应报文将大大提升处理速度
 		importBuilder.setPrintTaskLog(true);
-		importBuilder.setDebugResponse(false);//设置是否将每次处理的reponse打印到日志文件中，默认false
-		importBuilder.setDiscardBulkResponse(true);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认false
 
 		/**
 		 * 执行es数据导入数据库表操作

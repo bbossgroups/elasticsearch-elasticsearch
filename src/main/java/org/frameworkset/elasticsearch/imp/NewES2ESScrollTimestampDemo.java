@@ -135,7 +135,7 @@ public class NewES2ESScrollTimestampDemo {
 //		yyyy-MM-dd'T'HH:mm:ss.SSS'Z'时，需要设置字段相对应的日期格式，例如：yyyy-MM-dd HH:mm:ss
 //				,如果是默认utc格式，则不需要手动设置指定
 //		importBuilder.setLastValueDateformat("yyyy-MM-dd HH:mm:ss");
-		importBuilder.setFromFirst(true);//任务重启时，重新开始采集数据，true 重新开始，false不重新开始，适合于每次全量导入数据的情况，如果是全量导入，可以先删除原来的索引数据
+		importBuilder.setFromFirst(false);//任务重启时，重新开始采集数据，true 重新开始，false不重新开始，适合于每次全量导入数据的情况，如果是全量导入，可以先删除原来的索引数据
 		importBuilder.setLastValueStorePath("newes2esdemo_import");//记录上次采集的增量字段值的文件路径，作为下次增量（或者重启后）采集数据的起点，不同的任务这个路径要不一样
 		/**
 		 * 如果指定索引文档元数据字段为为文档_id,那么需要指定前缀meta:，如果是其他数据字段就不需要
@@ -189,6 +189,7 @@ public class NewES2ESScrollTimestampDemo {
 		catch (Exception e){
 			e.printStackTrace();
 		}
+        importBuilder.setIncreamentEndOffset(60);
 
 		//增量配置结束
 

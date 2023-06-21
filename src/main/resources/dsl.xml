@@ -43,6 +43,10 @@
                                 #if($logOpertime)
                                 "logOpertime": {
                                     "gt": #[logOpertime] ## 时间增量检索字段
+                                    #if($logOpertime__endTime)
+                                    ,
+                                    "lte": #[logOpertime__endTime]
+                                    #end
                                 }
                                 #end
                             }

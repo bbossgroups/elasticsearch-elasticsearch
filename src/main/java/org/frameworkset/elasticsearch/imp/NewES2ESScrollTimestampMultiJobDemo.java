@@ -122,7 +122,7 @@ public class NewES2ESScrollTimestampMultiJobDemo {
 //				.setDslName("scrollSliceQuery") //指定从源dbdemo表检索数据的slice scroll dsl语句名称，可以通过addParam方法传递dsl中的变量参数值
 //				.setSliceSize(5) // 指定slice数量，与索引debdemo的shard数量一致即可
 				.setQueryUrl("dbdemo/_search") ;// 指定从dbdemo索引表检索数据
-
+        importBuilder.setInputConfig(elasticsearchInputConfig);
 //				//添加dsl中需要用到的参数及参数值
 		importBuilder.addParam("var1","v1")
 				.addParam("var2","v2")

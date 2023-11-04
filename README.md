@@ -39,7 +39,7 @@ Elasticsearch 到数据库数据同步
 <dependency>
   <groupId>com.bbossgroups.plugins</groupId>
   <artifactId>bboss-datatran-jdbc</artifactId>
-  <version>7.1.0</version>
+  <version>7.1.1</version>
   <scope>compile</scope>
 </dependency>
 ```
